@@ -1,0 +1,84 @@
+------------------------------------------------------------------------
+
+---
+title: "Final Project Proposal"
+author: "Ellen Bledsoe"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Final Project Proposal
+
+Answering the questions in this document are worth 20 points for Question 5 in Week 9's Assignment.
+
+## Where to Find Data
+
+**If you have your own data from a research project, use it!**
+
+If you don't have your own data, here are some suggestions for where to find data:
+
+1.  From your lab group
+
+If you are working in a lab group, you can almost certainly find data to work with from your lab! Ask your PI or other lab members if you can use their data for this project. It is often helpful to have data that relates somewhat to a project or topic you are familiar with.
+
+2.  From the "Data is Plural" Archive
+
+[Data is Plural](https://www.data-is-plural.com/) is a weekly newsletter about complied datasets that people have found. They have an archive of all of the datasets that have been included in the newsletters, which is nearly 2000.
+
+Just because the datasets have been compiled does not mean that they are clean! I've used a few of them in class as demonstrations.
+
+3.  From an agency, NGO, or non-profit
+
+If you have contacts in a local, state, or federal agency or non-profit, they likely have some languishing data floating around that you can clean up.
+
+4.  A data repository
+
+There are many data repositories where you can find data. I would recommend sticking to some of the other options above to keep your search a bit more constrained, but feel free to ultimately use any dataset you find that you would like to use.
+
+5.  From me!
+
+If you aren't having any success finding a dataset, let me know. I have a few I can share with you, if needed.
+
+## Project Guidelines
+
+As a reminder, the general guidelines for the final project that the project will need to include core concepts covered in a certain number of weeks (6 for WFSC 496B, 10 for WFSC 596B), bringing together many aspects of what we will have learned through the course of the semester.
+
+The final project for this course is worth 300 points (WFSC 496B) or 500 points (WFSC 596B).
+
+## Questions
+
+The following answers are not binding! You can change your final project as much as you'd like from what you propose here.
+
+Answering these questions is meant to get you thinking about what data you would like to use and what tasks you might perform with the data.
+
+Note: Your data set does not need to be ecological in nature if you have another interest. It should also not be a dataset that we have used in class (see me if you have questions).
+
+1.  What data are you planning to use for the final project? Describe the data: its contents, its format(s), one or more dataframes, etc. If you have a link to the dataset, please include it. If you have a file that you can upload, please add it to the assignment submission.
+
+    I am planing on using tree ring data, the contents of this data are year and tree ring width. I am also paling on using weather station data. The weather variables I am interested in are precipitation and temperature. I also want to use some kind of PDSI data to estimate soil moisture, I will either find it or try to make it (I have no idea how to make a PDSI). All the data I do have is in my data_raw folder.
+
+2.  Does this data need to be cleaned in any way to make it tidy? If so, what needs to occur?
+
+    The tree ring data needs to be detrended. I need to move all the below ground samples (roots) to one dataframe and move all the above ground samples to another dataframe. I will then need to make a chronology for above ground samples and below ground samples. The climate data will need to have missing values replaced with the year average. I also need to account for leap years somehow. The temperature data has year, month, day, and average temp all in one cell in excel so I will have to separate those. I will also need to take a subset of the data for the years I am interested. I want to do a superpose epoch analysis to asses which temporal windows correlate strongest to tree growth so I will need to subset certain seasons out of the daily data (ex. summer monsoon, winter ext.). I also need to identify drought years and tempereature extreme years and put them in a separate dataframe.
+
+3.  Speaking generally, what tasks will you perform with this dataset? It might include tasks that we have not yet covered how to accomplish in class, but come up with a general plan that you would like to follow.
+
+    First I have to make the chronologies. Once I have the chronologies to work with I will run a Pearson correlation between daily climate variables and tree rings (for both above and below ground). Then I will identify drought years and extreme temperature years. I will run a superposed epoch analysis on these years to see what temporal windows effect tree growth most during drought and extreme temperature (and if it is different for above and below ground growth). I also want to make plots that show the ratio of growth above ground vs below ground in drought and extreme temperature years.
+
+4.  One of the requirements of the final project is to make some type of plot using `ggplot2` with the data. What do you plan to plot from your data?
+
+    I will use ggplot2 to make the superpose epoch plots and the plots of above vs below ground growth ratios. I was planing on using dendrotools to make the daily correlation plots.
+
+*Answer*:
+
+## Submitting this File
+
+1.  Create a new repository in the class GitHub organization for your final project. Use the naming convention "LastName_FinalProject"
+2.  Connect the repository to an RStudio project
+3.  Create a series of appropriate sub-directories in your RStudio Project, including a `documents` folder.
+4.  Move this file to the documents folder.
+5.  Stage, commit, and push this document (and sub-directory) to GitHub with a descriptive commit message.
