@@ -18,4 +18,4 @@ For the analysis
 
 1.  format climate data
 2.  create daily comparisons between above and below ground chronologies and temperature and precipitation
-3.  super posed epoch analysis to determine what periods of time have most significant effect on tree growth
+3.  superposed epoch analysis to determine what periods of time have most significant effect on tree growth
