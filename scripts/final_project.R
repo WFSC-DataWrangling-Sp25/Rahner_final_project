@@ -159,9 +159,9 @@ rwl_files <- list.files("data_raw", pattern = ".rwl", full.names = TRUE)
 all_data_list <- list()
 
 # read in each file
-for (file in rwl_files) {
-  rwl <- read.rwl(file)
-  all_data_list[[file]] <- rwl
+for (i in 1:length(rwl_files)) {
+  rwl <- read.rwl(paste0(rwl_files[i]))
+  all_data_list[[i]] <- rwl
 }
 
 # Combine into one data frame 
