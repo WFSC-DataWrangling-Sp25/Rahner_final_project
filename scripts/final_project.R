@@ -9,7 +9,10 @@ library(dendroTools)
 library(readxl)
 library(dplR)
 
-
+##REVIEW You did really well, it is very clear that you are experienced with R.
+##I am not, this course is the most I have, so I apologize if my comments seem
+##nitpicky, I just am not on the level you are. I will still try to provide good
+##feedback to the best of my ability.
 
 
 ###############################################################################
@@ -20,6 +23,10 @@ library(dplR)
 prec <- read_excel("data_raw/Daily precipitation.xlsx")
 
 #rename col names in prec to be tidy 
+
+##REVIEW I noticed that you changed 'Precipitation in inches' to prec_cm. I didn't
+##notice a conversion from in to cm, I'm unsure whether you meant to name it
+##prec_in or if you did not code in the conversion. 
 
 prec <- prec %>% 
   rename(year = Year,
@@ -55,16 +62,25 @@ prec <- prec %>%
 #going to get rid of data before 1950 going to make a new df because its easier
 #than undoing everything 
 
+##REVIEW Maybe a better name for the new df? pre typically makes me think there's 
+##a post, so maybe a name like precip or prec_new could be a better name.
+
 pre <-prec %>% filter(year>=1950) %>% 
   filter(year<=2021) %>% 
   mutate(date = make_date(year, month, day)) %>% 
   select (date, prec_cm)
 as_tibble(pre)
 
+##REVIEW You can probably shorten daily_precipitation to something like daily_precip
+##or daily_prec.
+
 #transform to wide format 
 daily_precipitation <- data_transform(pre, format = 'daily', 
                                       date_format = 'ymd')
 as_tibble(daily_precipitation)
+
+##REVIEW This is a very cool way of checking for NA data, I may try this in my
+##own coding.
 
 #look at data 
 glimpse_daily_data(env_data = daily_precipitation, na.color = "red") + 
@@ -152,6 +168,9 @@ glimpse_daily_data(env_data = daily_temp, na.color = "red") +
 library(dplR)
 library(stringr)
 
+##REVIEW This is a very good use of a for loop to read in files and modify them
+##all at once.
+
 # make list of rwl files
 rwl_files <- list.files("data_raw", pattern = ".rwl", full.names = TRUE)
 
@@ -166,6 +185,9 @@ for (i in 1:length(rwl_files)) {
 
 # Combine into one data frame 
 combined_rwl <- combine.rwl(all_data_list)
+
+##REVIEW I like using the strings to create new tables using only specific columns,
+##thats very cool
 
 # separate into aboveground data (stem) and belowground (roots)
 aboveground_cols <- str_detect(names(combined_rwl), "L|BA|BB|MA|MB|TA|TB|P")
@@ -207,6 +229,10 @@ plot(roots_chron)
 # PRECIPITATION FIRST
 
 #waring these figures take forever to load 
+
+##REVIEW I'm not sure, because i have no idea what the daily.response thing does,
+##but I feel like this is a good place to make it a function rather than typing
+##it out four times.
 
 #above ground
 
@@ -300,6 +326,7 @@ prism_met <- pre%>%
   subset(year >= 1950 & year < 2021) %>%
   rename(prec = )
 
+##REVIEW I like the use of the %in% in the following code, it looks very useful.
 
 # converts to date format
 prism_met$date <- date(prism_met$date)
