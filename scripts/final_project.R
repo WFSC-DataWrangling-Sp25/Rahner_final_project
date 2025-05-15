@@ -151,7 +151,7 @@ all_data_list <- list()
 
 #CLASS CONTENT: the following loop contains information from week 13: iteration
 #make for loop to read in data 
-for (i in 1:length(rwl_files)) { #set length of the loop to be length of rwl_files to avail hard coding 
+for (i in 1:length(rwl_files)) { #set length of the loop to be length of rwl_files to avoid hard coding 
   rwl <- read.rwl(paste0(rwl_files[i])) #loop through list of rwl files and read them in 
   all_data_list[[i]] <- rwl #save each read in rwl file to the empty list all_data_list
 }
@@ -205,7 +205,7 @@ write_csv(roots_chron, "data_clean/below_ground_crn.csv")
 
 # PRECIPITATION FIRST
 
-#WARNING these figures take forever to load and don't have to do with any class content
+#WARNING this analysis takes forever to load and doesn't have to do with any class content
 #i just have this in here because they are figures I'm going to use for my thesis 
 
 #above ground
@@ -304,7 +304,7 @@ dev.off()
 ###########################################################################################
 ################### SUPERPOSED EPOCH ANALYSIS #############################################
 ###########################################################################################
-# In this section I running a superposed epoch analysis between my two chronologies and   #
+# In this section I'm running a superposed epoch analysis between my two chronologies and #
 # precipitation data, I am comparing the impact of drought during different precipitation #
 # periods on tree ring growth- I want to see if trees are more sensitive to drought at    #
 # different precipitation periods                                                         #
@@ -550,7 +550,7 @@ run_sea_plot <- function(chron, period, years, chronology_data) {
 all_plots <- list() #make a empty list for plots to be stored in
 
 for (chron_name in names(chronologies)) { #set up the first loop to look into the chronologies list
-  for (period_name in names(drought_periods)) { #second layer to look in the drought periods list for each chronology 
+  for (period_name in names(drought_periods)) { #second layer to look in the drought periods list per chronology 
     chron_data <- chronologies[[chron_name]] #ruining through the chronologies list looking at column chron_name
     drought_years <- drought_periods[[period_name]] #running through drought_periods list looking at period_name
     
