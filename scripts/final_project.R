@@ -10,6 +10,16 @@ library(readxl)
 library(dplR)
 
 ######################################################################################
+# Steps for the analysis                                                             #
+# 1. Clean up climate data                                                           #
+# 2. Clean up tree ring data                                                         #
+# 3. Create daily comparisons between above and below ground chronologies to         #
+#    temperature and precipitation data.                                             #
+# 4. Run superposed epoch analysis to determine if different drought timing have     #
+#    different impacts on tree growth.                                               #
+######################################################################################
+
+######################################################################################
 ############# working with precipitation data first ##################################
 ######################################################################################
 
