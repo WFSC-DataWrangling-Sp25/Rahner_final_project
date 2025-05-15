@@ -9,14 +9,14 @@ library(dendroTools)
 library(readxl)
 library(dplR)
 
-###############################################################################
-############### working with prec data first ##################################
-###############################################################################
+######################################################################################
+############# working with precipitation data first ##################################
+######################################################################################
 
 #read in climate data 
 prec <- read_excel("data_raw/Daily precipitation.xlsx")
 
-#rename col names in prec to be tidy 
+#rename column names in precipitation data to be tidy 
 #CLASS CONTENT: the rename function is in Week 6: Tidy Data
 prec <- prec %>% 
   rename(year = Year,
@@ -24,8 +24,8 @@ prec <- prec %>%
          day = Day,
          prec_cm = `Precipitation in inches`)
 
-
-#i want the dates to be in date format now
+#this code is commented out but I need to keep it so I know why I decided to get
+#rid of data before 1950 later 
 
 #prec <-prec %>%
 #  mutate(date = make_date(year, month, day)) %>% 
@@ -50,7 +50,8 @@ prec <- prec %>%
 #  theme(legend.position = "bottom")
 
 #going to get rid of data before 1950
-#filter, mutate, select content from week 6: tidy data
+#CLASS CONTENT: filter, mutate, select content from week 6: tidy data
+#CLASS CONTENT: select and pipe: week 3: Data tables 
 pre <-prec %>% filter(year>=1950) %>% 
   filter(year<=2021) %>% #filter out years after 1950
   mutate(date = make_date(year, month, day)) %>% #make a date column with y/m/d
@@ -62,7 +63,7 @@ daily_precipitation <- data_transform(pre, format = 'daily',
                                       date_format = 'ymd')
 as_tibble(daily_precipitation)
 
-#look at data 
+#look at data - why is this saving a plot????
 glimpse_daily_data(env_data = daily_precipitation, na.color = "red") + 
   theme(legend.position = "bottom")
 
@@ -78,9 +79,10 @@ glimpse_daily_data(env_data = daily_precipitation, na.color = "red") +
 write_csv(daily_precipitation, "data_clean/daily_precipitation.csv")
 
 #looks good moving on
-################################################################################
-############################## TEMP DATA #######################################
-################################################################################
+###############################################################################################
+############################## TEMP DATA ######################################################
+###############################################################################################
+
 temp <- read_excel("data_raw/Temp_data_GHCN-D_station_code_USC00295084_LOS_ALAMOS_NM_US.xlsx",
                    skip= 19, col_names = FALSE)
 
@@ -134,9 +136,9 @@ write_csv(daily_temp, "data_clean/daily_temp.csv")
 
 #yay looks good now lets do some tree stuff 
 
-############################################################################
-############################# TREE MAGIC ###################################
-############################################################################
+#######################################################################################################
+######################### MAKING CHRONOLOGIES #########################################################
+#######################################################################################################
 #load libraries
 library(dplR)
 library(stringr)
@@ -148,11 +150,9 @@ rwl_files <- list.files("data_raw", pattern = ".rwl", full.names = TRUE)
 all_data_list <- list()
 
 #CLASS CONTENT: the following loop contains information from week 13: iteration
-# read in each file
-
 #make for loop to read in data 
 for (i in 1:length(rwl_files)) { #set length of the loop to be length of rwl_files to avail hard coding 
-  rwl <- read.rwl(paste0(rwl_files[i])) #read through list of rwl files and read them in 
+  rwl <- read.rwl(paste0(rwl_files[i])) #loop through list of rwl files and read them in 
   all_data_list[[i]] <- rwl #save each read in rwl file to the empty list all_data_list
 }
 
@@ -161,52 +161,47 @@ combined_rwl <- combine.rwl(all_data_list)
 
 #CLASS CONTENT: the following 3 lines contain content from week 7: Dates and Strings
 # separate rwl files into aboveground data (stem) and belowground (roots) - "L|BA|BB|MA|MB|TA|TB|P" 
-#are only in the column names of above ground samples so using this pattern will seperate them 
+#are only in the column names of above ground samples so using this pattern will separate them 
 aboveground_cols <- str_detect(names(combined_rwl), "L|BA|BB|MA|MB|TA|TB|P")
 above_ground <- combined_rwl[, aboveground_cols] 
 below_ground <- combined_rwl[, !aboveground_cols]
 
-
-#detrend data and make chronologies for above ground and belowground data 
+#######################################################################################
+# make chronology for above ground data 
+###############
 
 #check correlation 
 corr.rwl.seg(above_ground, seg.length = 10, bin.floor = 0, pcrit = 0.166) #looks good
-#quick plot
-plot(above_ground, plot.type = "spag")
+plot(above_ground, plot.type = "spag") #look at data
 
 #detrend aboveground chronology 
 detrend_above <- detrend(above_ground, method = "Spline", nyrs = 20)
+above_chron <- chron(detrend_above) #make chronology
 
-#make chronology
-above_chron <- chron(detrend_above)
-
-#plot chronology
-plot(above_chron)
+plot(above_chron) #plot chronology
 
 #save above ground chron 
 write_csv(above_chron, "data_clean/above_ground_crn.csv")
 
 ##################################################################################
-#make chronology for beloground data 
-##################################################################################
+# make chronology for belowground data 
+#############
+
 #check correlation 
 corr.rwl.seg(below_ground, seg.length = 10, bin.floor = 0, pcrit = .1676) #looks good
-#quick plot
-plot(below_ground, plot.type = "spag")
-
-#detrend 
-detrend_below <- detrend(below_ground, method = "Spline")
+plot(below_ground, plot.type = "spag") #plot
+detrend_below <- detrend(below_ground, method = "Spline") #detrend 
 
 #make chronology 
 roots_chron <- chron(detrend_below)
-#plot 
 plot(roots_chron)
 
 #save chronology 
 write_csv(roots_chron, "data_clean/below_ground_crn.csv")
-#################################################################################
-#great we have chronologies now we need to compare to climate data ##############
-#################################################################################
+
+#############################################################################################
+################### Compare chronologies to climate data ####################################
+#############################################################################################
 
 # PRECIPITATION FIRST
 
@@ -306,29 +301,32 @@ png("outputs/roots_response_temp.png", width = 800, height = 600)
 plot(roots.chrn_response_temp, type = 2)
 dev.off()
 
-#######################################################################################
-################### SUPERPOSED EPOCH ANALYSIS #########################################
-#######################################################################################
-#In this section I running a superposed epoch analysis between by two chronologies and 
-#precipitation data, I am comparing the impact of drought during different precipitation 
-#periods on tree ring growth- I want to see if trees are more sensitive to drought at 
-#different precipitation periods 
-#the periods I am using are: previous monsoon, previous fall, winter, pre monsoon, 
-#wateryear, and monsoon 
-#######################################################################################
-library(lubridate)
-#start with precipitation
+###########################################################################################
+################### SUPERPOSED EPOCH ANALYSIS #############################################
+###########################################################################################
+# In this section I running a superposed epoch analysis between my two chronologies and   #
+# precipitation data, I am comparing the impact of drought during different precipitation #
+# periods on tree ring growth- I want to see if trees are more sensitive to drought at    #
+# different precipitation periods                                                         #
+# the periods I am using are: previous monsoon, previous fall, winter, pre monsoon,       #
+# wateryear, and monsoon                                                                  #
+###########################################################################################
 
+#read library
+library(lubridate)
+
+##########################
 head(pre)
 
 #CLASS CONTENT: week 7: dates and times
-#change format of climate data have date, value, year and month
+#change format of climate data to have date, value, year and month
 ppt_sea_prep <- pre%>% #make new data frame to add the different precipitation periods too 
-  mutate(month = month(date), year = year(date)) %>%
-  relocate(month, .after = year) %>%
-  subset(year >= 1950 & year < 2021) %>%
-  rename(prec = )
-head(ppt_sea_prep)
+  mutate(month = month(date), 
+         year = year(date)) %>% #make month and year column 
+  relocate(month, .after = year) #put month after year 
+
+head(ppt_sea_prep) #look at data
+tail(ppt_sea_prep)
 
 # add in column for different precipitation timing
 ppt_sea_prep <- mutate(ppt_sea_prep,
@@ -344,7 +342,7 @@ ppt_sea_prep <- mutate(ppt_sea_prep,
 wateryear_breaks <- seq(as.Date("1950-10-01"), length=72, by="year") #make a vector of water years from 1950-2021 
 years.wateryear.breaks = as.numeric(format(wateryear_breaks,"%Y")) #make year numeric 
 labels.wateryear = years.wateryear.breaks[2:length(wateryear_breaks)]  #label water yeas
-ppt_sea_prep$wateryear <- cut(ppt_sea_prep$date, wateryear_breaks,labels=labels.wateryear)#add water year to ppt_sea_prep data fram
+ppt_sea_prep$wateryear <- cut(ppt_sea_prep$date, wateryear_breaks,labels=labels.wateryear)#add water year to ppt_sea_prep data frame
 
 #make wateryear data frame that has total precipitation for each water year
 wateryear <- ppt_sea_prep %>%
@@ -403,6 +401,7 @@ monsoon <- ppt_sea_prep %>%
 #check data 
 head(monsoon)
 
+##########################################################################################
 #the date is a factor and i need it to be numeric because i was running into problems when
 #trying to plot with year as a factor 
 
@@ -429,11 +428,14 @@ head(summary_ppt_sea)
 #save this datafram 
 write_csv(summary_ppt_sea, "data_clean/ppt_data_for_sea.csv")
 
-#for the SEA analysis I am going to use the top 10 percentiles drought years in each of the 
-#time periods to see what timing of drought has the largest impact on tree growth 
+##############################################################################################
+# for the SEA analysis I am going to use the top 10 percentiles drought years in each of the #
+# time periods                                                                               #
+# below I make data frames with each precipitation windows drought years                     #
+##############################################################################################
 
 ##########
-#make data fram for driest winter years 
+#make data frame for driest winter years 
 winter_drought_yrs <- summary_ppt_sea %>%
   select(year,winter_ppt) %>%
   arrange(winter_ppt) %>% #arrange by smallest to largest
@@ -453,7 +455,6 @@ prev_mons_drought_yrs <- summary_ppt_sea %>%
   select(year, prev_mons_ppt) %>% #select columns
   arrange(prev_mons_ppt) %>% #arrange by smallest to largest
   slice(1:(n() * 0.10)) #select only top 10 driest 
-
 
 ############
 #Prev fall
@@ -476,9 +477,9 @@ monsoon_drought_yrs <- summary_ppt_sea %>%
   arrange(monsoon_ppt) %>% #arrange by smallest to largest
   slice(1:(n() * 0.10)) #select only top 10 driest 
 
-#################
-#for loop withing a for loop that i created with the help of chat gpt 
-
+##########################################################################################
+#make lists for the function and loop 
+#########
 
 #make a list of drought periods
 drought_periods <- list(
@@ -497,7 +498,14 @@ chronologies <- list(
 )
 
 #CLASS CONTENT: Week 11: Functions 
-#make a function for SEA analysis structure of function came from chatGPT
+#make a function for SEA analysis, structure of function came from chatGPT
+# function works by 
+# 1. takes arguments of chronology name, period name, drought years, chronology date
+# 2. takes all the years that are not drought years, makes a mean and sd from chronology data in those years
+# 3. runs the superposed epoch analysis for the drought years per drought period 
+# 4. put the sea results into a data frame 
+# 5. plots the results of the sea analysis 
+
 run_sea_plot <- function(chron, period, years, chronology_data) {
   normal <- chronology_data %>%
     rownames_to_column("year") %>% #make year column
@@ -505,7 +513,7 @@ run_sea_plot <- function(chron, period, years, chronology_data) {
     mutate(std = as.numeric(std)) #make std numeric 
   
   mn <- mean(normal$std, na.rm = TRUE) #calculate non drought mean
-  sdev <- sd(normal$std, na.rm = TRUE) #calculate non drought standard diviation 
+  sdev <- sd(normal$std, na.rm = TRUE) #calculate non drought standard deviation 
   
   #do sea analysis 
   sea_result <- sea(chronology_data, years, lag = 2, resample = 1000) 
@@ -513,15 +521,14 @@ run_sea_plot <- function(chron, period, years, chronology_data) {
   #make dataframe for sea
   sea_df <- data.frame(
     lag = sea_result$lag, #make lag column (2 year lag)
-    response = sea_result$se.unscaled, #make sea responce column
+    response = sea_result$se.unscaled, #make sea response column
     p_value = sea_result$p, #make p value column
     sig = sea_result$p < 0.10, #make significance column
-    upper = mn + sdev, #1 standard diviation above mean
-    lower = mn - sdev #one standard diviation below the mean 
+    upper = mn + sdev, #1 standard deviation above mean
+    lower = mn - sdev #one standard deviation below the mean 
   )
-  
 
-#CLASS Content: week 5: data visualization   
+  #CLASS Content: week 5: data visualization   
   #code for plots
   ggplot(sea_df, aes(x = lag, y = response)) +
     geom_ribbon(aes(ymin = lower, ymax = upper), fill = "blue", alpha = 0.1) + #sd shading
@@ -531,8 +538,8 @@ run_sea_plot <- function(chron, period, years, chronology_data) {
     scale_color_manual(values = c("FALSE" = "black", "TRUE" = "darkgreen")) + #color based on p value 
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 8)) + #shape based on p value 8 = star 
     labs(
-      title = paste0(period_name, " - ", chron_name), #add tiles that have drought period and chronologies seperated by dash 
-      x = "Superposed Epoch (lag)", #x lable 
+      title = paste0(period_name, " - ", chron_name), #add tiles that have drought period and chronologies separated by dash 
+      x = "Superposed Epoch (lag)", #x label 
       y = "RWI" #y label 
     ) +
     theme_classic(base_size = 14) #set theme 
@@ -540,13 +547,15 @@ run_sea_plot <- function(chron, period, years, chronology_data) {
 
 #CLASS CONTENT week 13: Iteration
 # Loop over each combination of chronology and drought period - structure of loop came from chatGPT
-all_plots <- list() #make a empty plot for plots to be stored in
+all_plots <- list() #make a empty list for plots to be stored in
+
 for (chron_name in names(chronologies)) { #set up the first loop to look into the chronologies list
   for (period_name in names(drought_periods)) { #second layer to look in the drought periods list for each chronology 
-    chron_data <- chronologies[[chron_name]] #runing through the conologies list looking at column chron_name
-    drought_years <- drought_periods[[period_name]] #ringin through drought_periods list looking a period_name
+    chron_data <- chronologies[[chron_name]] #ruining through the chronologies list looking at column chron_name
+    drought_years <- drought_periods[[period_name]] #running through drought_periods list looking at period_name
     
-    plot <- run_sea_plot(chron_name, period_name, drought_years, chron_data)#making the plot for each chronologie in each drought period 
+    #making the plot for each chronology in each drought period using the function that was just made 
+    plot <- run_sea_plot(chron_name, period_name, drought_years, chron_data) 
     
     # Store plot with a unique name
     plot_key <- paste(chron_name, period_name, sep = "_")#saving plots with unique name based on chron_name and drought period
@@ -570,4 +579,4 @@ for (plot_name in names(all_plots)) {
 #look at all the plots 
 walk(all_plots, print)
 
-
+##########################################################################################################
