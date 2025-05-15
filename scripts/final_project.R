@@ -580,7 +580,7 @@ for (plot_name in names(all_plots)) {
   ggsave(
     filename = paste0("outputs/", plot_name, ".png"),  #save each plot as PNG 
     plot = all_plots[[plot_name]], 
-    width = 8, height = 6, dpi = 300 #set dimentions 
+    width = 8, height = 6, dpi = 300 #set dimensions 
   )
 }
 
